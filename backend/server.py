@@ -1,15 +1,17 @@
 import requests
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, session
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timedelta
 from psycopg2 import pool
 from flask_cors import CORS, cross_origin
 from flask_bcrypt import Bcrypt, check_password_hash
 from flask_jwt_extended import create_access_token
+from flask_jwt_extended import jwt_required
 from flask_jwt_extended import JWTManager
 
-from logic import format_db_row_to_transaction
+
+from logic import format_db_row_to_transaction, User
 from logic import BOUGHT, SOLD
 
 #coin gecko za live cenu crypto
@@ -17,6 +19,8 @@ LIVE_PRICE_URL = "https://api.coingecko.com/api/v3/simple/price"
 
 app = Flask(__name__)
 
+
+app.secret_key = "super secret key"
 app.config['JWT_SECRET_KEY'] = 'my_only_secret'
 
 cors = CORS(app)
@@ -56,13 +60,18 @@ def validate_user(email):
     data = cur.fetchone()
     return data
 
+def delete_validation(id):
+    conn = postgreSQL_pool.getconn()
+    cur = conn.cursor()
 
+    statement = f"SELECT * FROM transaction WHERE id = {id}"
+    cur.execute(statement)
+    data = cur.fetchone()
+    return data
 
-@app.route("/")
+@app.route("/hello")
 def health_check():
     return "I am healthy!"
-
-
 
 @app.route("/register", methods=['POST'])
 def new_user():
@@ -75,15 +84,7 @@ def new_user():
     email = request.json["email"]
     password = bcrypt.generate_password_hash(request.json["password"]).decode('utf-8')
 
-    conn = postgreSQL_pool.getconn()  
-    cur = conn.cursor()
-
-    if not validate_user(email):
-        insert_statement = f"INSERT INTO \"user\" (name, lastname, address, city, country, phone_num, email, password) VALUES ('{name}', '{lastname}', '{address}', '{city}', '{country}', '{phone_num}', '{email}', '{password}') RETURNING *"
-        cur.execute(insert_statement)
-        conn.commit()
-
-        result = {
+    result = {
             'name': name,
             'lastname': lastname,
             'address': address,
@@ -93,6 +94,14 @@ def new_user():
             'email': email,
             'password': password
         }
+
+    conn = postgreSQL_pool.getconn()  
+    cur = conn.cursor()
+
+    if not validate_user(email):
+        insert_statement = f"INSERT INTO \"user\" (name, lastname, address, city, country, phone_num, email, password) VALUES ('{name}', '{lastname}', '{address}', '{city}', '{country}', '{phone_num}', '{email}', '{password}') RETURNING *"
+        cur.execute(insert_statement)
+        conn.commit()
 
         return jsonify({'result': result})
     else:
@@ -116,16 +125,17 @@ def login():
 
     
     if bcrypt.check_password_hash(row[7], password):
+        session['user_id'] = row[8]
         access_token = create_access_token(
             identity={'name': row[0], 'lastname': row[1], 'email': row[6]})
-        result = jsonify({"access_token" : access_token})
+        result = jsonify(message='success', access_token = access_token)
     else:
         result = jsonify({"error": "Invalid email and password"})
 
     return result
 
-
-@app.route("/transactions", methods=["POST"])
+@app.route("/add_transaction", methods=["POST"])
+@jwt_required()
 def new_transaction():
 
     symbol = request.json["symbol"]
@@ -146,19 +156,20 @@ def new_transaction():
     conn = postgreSQL_pool.getconn()  
     cur = conn.cursor()
 
-    insert_statement = f"INSERT INTO transaction (name, symbol, type, amount, time_transacted, time_created, price_purchased_at, no_of_coins) VALUES ('{name}', '{symbol}', {type}, {amount}, '{time_transacted}', '{time_created}', {price_purchased_at}, {no_of_coins}) RETURNING *"
+    insert_statement = f"INSERT INTO transaction (name, symbol, type, amount, time_transacted, time_created, price_purchased_at, no_of_coins, user_id) VALUES ('{name}', '{symbol}', {type}, {amount}, '{time_transacted}', '{time_created}', {price_purchased_at}, {no_of_coins}, {session['user_id']}) RETURNING *"
     cur.execute(insert_statement)
     conn.commit()
 
     return jsonify(request.json)
 
-@app.route("/transactions", methods=["GET"])
+@app.route("/get_all_transactions", methods=["GET"])
+@jwt_required()
 @cross_origin()
 def get_transactions():
     conn = postgreSQL_pool.getconn()
     cur = conn.cursor()
 
-    cur.execute("SELECT * FROM transaction")
+    cur.execute(f"SELECT * FROM transaction WHERE user_id = {session['user_id']}")
     # pokupimo sve redove iz baze
     rows = cur.fetchall()  
 
@@ -172,6 +183,7 @@ def get_transactions():
 
 
 @app.route("/get_portfolio", methods=["GET"])
+@jwt_required()
 def get_portfolio():
     portfolio = defaultdict(
         # inicijalno vrednosti su 0
@@ -179,7 +191,8 @@ def get_portfolio():
             "coins": 0,
             "total_cost": 0,
             "total_equity": 0,
-            "live_price": 0
+            "live_price": 0,
+            "total_gain_loss": 0
         }
     )
 
@@ -188,7 +201,7 @@ def get_portfolio():
 
     # za svaku crypto valutu izvucemo koliko je ukupno placeno za nju i koliko ukupno coina imamo
     # i grupisemo po tome da li je prodaja ili kupovina
-    cur.execute("SELECT symbol, type, SUM(amount)/100 AS total_amount, SUM(no_of_coins) AS total_coins FROM transaction GROUP BY symbol, type")
+    cur.execute(f"SELECT symbol, type, SUM(amount)/100 AS total_amount, SUM(no_of_coins) AS total_coins FROM transaction WHERE user_id = {session['user_id']} GROUP BY symbol, type")
     rows = cur.fetchall()
 
 
@@ -221,13 +234,16 @@ def get_portfolio():
         portfolio[symbol]['live_price'] = live_price
 
         # ukupna trenutna vrednost po valuti
-        # u bazi imamo cenu valute kada je kupljena
-        # na osnovu toga mozemo dobiti koliki je gain/loss
-        # tako sto cemo od total equity oduzeti total cost (naravno sabrati ove dve stavke za ceo portfolio)
-
         portfolio[symbol]['total_equity'] = float(
             float(portfolio[symbol]['coins']) * live_price
         )
+
+        # ukupni gain/loss po valuti
+        # ukupna trenutna vrednost - ukupno para potroseno
+        total_gain_loss = 0
+        total_gain_loss += (portfolio[symbol]['total_equity'] - portfolio[symbol]['total_cost']) 
+
+        portfolio[symbol]['total_gain_loss'] = total_gain_loss
 
         response_list.append(
             {
@@ -235,13 +251,31 @@ def get_portfolio():
                 "live_price": portfolio[symbol]['live_price'],
                 "total_equity": portfolio[symbol]['total_equity'],
                 "coins": portfolio[symbol]['coins'],
-                "total_cost": portfolio[symbol]['total_cost']
+                "total_cost": portfolio[symbol]['total_cost'],
+                "total_gain_loss": portfolio[symbol]['total_gain_loss']
             }
         )
 
     return jsonify(response_list)
 
 
+@app.route("/delete_transaction", methods=["DELETE"])
+@jwt_required()
+def delete_transaction():
+
+    id = request.json["id"]
+
+    conn = postgreSQL_pool.getconn()
+    cur = conn.cursor()
+
+    if delete_validation(id):
+
+        cur.execute(f"DELETE FROM transaction WHERE id = {id} AND user_id = {session['user_id']}")
+        conn.commit()
+
+        return jsonify({'result': 'transaction deleted'})    
+    else:
+        return jsonify({'error': 'transaction does not exist' })
 
 
 app.run(debug=True, port=5000)

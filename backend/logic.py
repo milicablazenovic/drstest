@@ -20,7 +20,7 @@ class Transaction:
     no_of_coins: float
 
 @dataclass(frozen=True)
-class User:
+class User():
     name: str
     lastname: str
     address: str
