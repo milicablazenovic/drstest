@@ -11,6 +11,7 @@ from flask_jwt_extended import jwt_required
 from flask_jwt_extended import JWTManager
 
 
+
 from logic import format_db_row_to_transaction, User
 from logic import BOUGHT, SOLD
 
@@ -22,6 +23,7 @@ app = Flask(__name__)
 
 app.secret_key = "super secret key"
 app.config['JWT_SECRET_KEY'] = 'my_only_secret'
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgres://docker:docker@database/drsdb"
 
 cors = CORS(app)
 bcrypt = Bcrypt(app)
@@ -68,6 +70,21 @@ def delete_validation(id):
     cur.execute(statement)
     data = cur.fetchone()
     return data
+
+def create_user():
+    conn = postgreSQL_pool.getconn()
+    cur = conn.cursor()
+    cur.execute("CREATE TABLE IF NOT EXISTS \"user\" (name VARCHAR (20) NOT NULL, lastname VARCHAR (20) NOT NULL, address VARCHAR (30) NOT NULL, city VARCHAR (20) NOT NULL, country VARCHAR (20) NOT NULL, phone_num VARCHAR (10) NOT NULL, email VARCHAR (20) NOT NULL, password VARCHAR (500) NOT NULL, user_id serial PRIMARY KEY)")
+    conn.commit()
+
+def create_transaction():
+    conn = postgreSQL_pool.getconn()
+    cur = conn.cursor()
+    cur.execute("CREATE TABLE IF NOT EXISTS transaction (id serial PRIMARY KEY, name VARCHAR (12) NOT NULL, symbol VARCHAR (5) NOT NULL, type SMALLINT NOT NULL, amount INT NOT NULL, time_transacted TIMESTAMP NOT NULL, time_created TIMESTAMP NOT NULL, price_purchased_at NUMERIC NOT NULL, no_of_coins NUMERIC NULL, user_id INT NOT NULL)")
+    conn.commit()
+
+create_transaction()
+create_user()
 
 @app.route("/hello")
 def health_check():
@@ -133,6 +150,12 @@ def login():
         result = jsonify({"error": "Invalid email and password"})
 
     return result
+
+
+"""@app.route('/logout')
+def logout():
+    session.pop('user', None)
+    return jsonify({"result": "You are logged out")"""
 
 @app.route("/add_transaction", methods=["POST"])
 @jwt_required()
