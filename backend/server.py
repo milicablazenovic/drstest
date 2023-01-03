@@ -110,8 +110,8 @@ def new_user():
     cur = conn.cursor()
 
     if not validate_user(email):
-        insert_statement = f"INSERT INTO \"user\" (name, lastname, address, city, country, phone_num, email, password) VALUES ('{name}', '{lastname}', '{address}', '{city}', '{country}', '{phone_num}', '{email}', '{password}') RETURNING *"
-        cur.execute(insert_statement)
+        insert_statement = f"INSERT INTO \"user\" (name, lastname, address, city, country, phone_num, email, password) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING *"
+        cur.execute(insert_statement, (name, lastname, address, city, country, phone_num, email, password))
         conn.commit()
         return jsonify({'result': result}) 
 
@@ -148,8 +148,8 @@ def edit_user():
     conn = postgreSQL_pool.getconn()  
     cur = conn.cursor()
 
-    insert_statement = f"UPDATE \"user\" SET name = '{name}', lastname = '{lastname}', address = '{address}', city = '{city}', country = '{country}', phone_num = '{phone_num}', email = '{email}', password = '{password}' WHERE user_id = {session['user_id']}"
-    cur.execute(insert_statement)
+    insert_statement = f"UPDATE \"user\" SET name = %s, lastname = %s, address = %s, city = %s, country = %s, phone_num = %s, email = %s, password = %s WHERE user_id = {session['user_id']}"
+    cur.execute(insert_statement, (name, lastname, address, city, country, phone_num, email, password))
     conn.commit()
     return jsonify(result)
 
@@ -167,8 +167,8 @@ def login():
     conn = postgreSQL_pool.getconn()  
     cur = conn.cursor()
 
-    statement = f"SELECT * FROM \"user\" WHERE email = '{email}'"
-    cur.execute(statement)
+    statement = f"SELECT * FROM \"user\" WHERE email = %s"
+    cur.execute(statement, (email,))
     row = cur.fetchone()
 
     
@@ -214,8 +214,8 @@ def new_transaction():
     conn = postgreSQL_pool.getconn()  
     cur = conn.cursor()
 
-    insert_statement = f"INSERT INTO transaction (name, symbol, type, amount, time_transacted, time_created, price_purchased_at, no_of_coins, user_id) VALUES ('{name}', '{symbol}', {type}, {amount}, '{time_transacted}', '{time_created}', {price_purchased_at}, {no_of_coins}, {session['user_id']}) RETURNING *"
-    cur.execute(insert_statement)
+    insert_statement = f"INSERT INTO transaction (name, symbol, type, amount, time_transacted, time_created, price_purchased_at, no_of_coins, user_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, {session['user_id']}) RETURNING *"
+    cur.execute(insert_statement, (name, symbol, type, amount, time_transacted, time_created, price_purchased_at, no_of_coins))
     conn.commit()
 
     return jsonify(request.json)
@@ -231,7 +231,7 @@ def get_transactions():
     conn = postgreSQL_pool.getconn()
     cur = conn.cursor()
 
-    cur.execute(f"SELECT * FROM transaction WHERE user_id = {user_id}")
+    cur.execute(f"SELECT * FROM transaction WHERE user_id = %s", (user_id,))
     # pokupimo sve redove iz baze
     rows = cur.fetchall()  
 
@@ -337,7 +337,7 @@ def delete_transaction():
 
     if not delete_validation(id):
 
-        cur.execute(f"DELETE FROM transaction WHERE id = {id} AND user_id = {session['user_id']}")
+        cur.execute(f"DELETE FROM transaction WHERE id = %s AND user_id = {session['user_id']}", (id,))
         conn.commit()
         return jsonify({'result': 'transaction deleted'})  , 200
 
