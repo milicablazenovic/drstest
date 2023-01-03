@@ -6,13 +6,8 @@ from datetime import datetime, timedelta
 from psycopg2 import pool
 from flask_cors import CORS, cross_origin
 from flask_bcrypt import Bcrypt, check_password_hash
-from flask_jwt_extended import create_access_token
-from flask_jwt_extended import jwt_required
-from flask_jwt_extended import JWTManager
 
-
-
-from logic import format_db_row_to_transaction, User
+from logic import format_db_row_to_transaction
 from logic import BOUGHT, SOLD
 
 #coin gecko za live cenu crypto
@@ -22,12 +17,10 @@ app = Flask(__name__)
 
 
 app.secret_key = "super secret key"
-app.config['JWT_SECRET_KEY'] = 'my_only_secret'
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgres://docker:docker@database/drsdb"
+app.config['POSTGRESQL_DATABASE_URI'] = "postgres://docker:docker@database:5432/drsdb"
 
-cors = CORS(app)
+cors = CORS(app, supports_credentials=True)
 bcrypt = Bcrypt(app)
-jwt = JWTManager(app)
 
 symbol_to_coin_map = {
     "BTC": "bitcoin",
@@ -66,7 +59,7 @@ def delete_validation(id):
     conn = postgreSQL_pool.getconn()
     cur = conn.cursor()
 
-    statement = f"SELECT * FROM transaction WHERE id = {id}"
+    statement = f"SELECT * FROM transaction WHERE id = {id} AND user_id = {session['user_id']} "
     cur.execute(statement)
     data = cur.fetchone()
     return data
@@ -89,6 +82,7 @@ create_user()
 @app.route("/hello")
 def health_check():
     return "I am healthy!"
+
 
 @app.route("/register", methods=['POST'])
 def new_user():
@@ -119,19 +113,56 @@ def new_user():
         insert_statement = f"INSERT INTO \"user\" (name, lastname, address, city, country, phone_num, email, password) VALUES ('{name}', '{lastname}', '{address}', '{city}', '{country}', '{phone_num}', '{email}', '{password}') RETURNING *"
         cur.execute(insert_statement)
         conn.commit()
-
-        return jsonify({'result': result})
-    else:
+        return jsonify({'result': result}) 
 
         # User vec postoji
-        result = jsonify({'result': 1})
-        return result
+    return jsonify({'error':'User already exists'}), 409
+       
+
+@app.route("/edit_user", methods=['POST'])
+def edit_user():
+
+    if session.get('user_id') is None:
+        return jsonify({'resdult':'You are logged out'}), 401
+
+    name = request.json["name"]
+    lastname = request.json["lastname"]
+    address = request.json["address"]
+    city = request.json["city"]
+    country = request.json["country"]
+    phone_num = request.json["phone_num"]
+    email = request.json["email"]
+    password = bcrypt.generate_password_hash(request.json["password"]).decode('utf-8')
+
+    result = {
+            'name': name,
+            'lastname': lastname,
+            'address': address,
+            'city': city,
+            'country': country,
+            'phone_num': phone_num,
+            'email': email,
+            'password': password
+        }
+
+    conn = postgreSQL_pool.getconn()  
+    cur = conn.cursor()
+
+    insert_statement = f"UPDATE \"user\" SET name = '{name}', lastname = '{lastname}', address = '{address}', city = '{city}', country = '{country}', phone_num = '{phone_num}', email = '{email}', password = '{password}' WHERE user_id = {session['user_id']}"
+    cur.execute(insert_statement)
+    conn.commit()
+    return jsonify(result)
+
 
 @app.route("/login", methods=['POST'])
 def login():
+
     email = request.json["email"]
     password = request.json["password"]
     result = ""
+
+    if not validate_user(email):
+        return jsonify({'error':'Unauthorized'}), 401
 
     conn = postgreSQL_pool.getconn()  
     cur = conn.cursor()
@@ -143,23 +174,27 @@ def login():
     
     if bcrypt.check_password_hash(row[7], password):
         session['user_id'] = row[8]
-        access_token = create_access_token(
-            identity={'name': row[0], 'lastname': row[1], 'email': row[6]})
-        result = jsonify(message='success', access_token = access_token)
+        """access_token = create_access_token(
+            identity={'name': row[0], 'lastname': row[1], 'email': row[6]})"""
+        result = jsonify({'email': email, 
+                          'id': row[8]})
     else:
-        result = jsonify({"error": "Invalid email and password"})
+        result = jsonify({"error": "Unauthorized"}), 401
 
     return result
 
 
-"""@app.route('/logout')
+@app.route('/logout', methods=['POST'])
 def logout():
-    session.pop('user', None)
-    return jsonify({"result": "You are logged out")"""
+    session.pop("user_id", None)
+    return jsonify({'result':'You are logged out'}), 200
+    
 
 @app.route("/add_transaction", methods=["POST"])
-@jwt_required()
 def new_transaction():
+
+    if session.get('user_id') is None:
+        return jsonify({'resdult':'You are logged out'}), 401
 
     symbol = request.json["symbol"]
 
@@ -186,13 +221,17 @@ def new_transaction():
     return jsonify(request.json)
 
 @app.route("/get_all_transactions", methods=["GET"])
-@jwt_required()
-@cross_origin()
 def get_transactions():
+
+    if session.get('user_id') is None:
+        return jsonify({'resdult':'You are logged out'}), 401
+
+    user_id = session['user_id']
+
     conn = postgreSQL_pool.getconn()
     cur = conn.cursor()
 
-    cur.execute(f"SELECT * FROM transaction WHERE user_id = {session['user_id']}")
+    cur.execute(f"SELECT * FROM transaction WHERE user_id = {user_id}")
     # pokupimo sve redove iz baze
     rows = cur.fetchall()  
 
@@ -206,8 +245,11 @@ def get_transactions():
 
 
 @app.route("/get_portfolio", methods=["GET"])
-@jwt_required()
 def get_portfolio():
+
+    if session.get('user_id') is None:
+        return jsonify({'resdult':'You are logged out'}), 401
+
     portfolio = defaultdict(
         # inicijalno vrednosti su 0
         lambda: {                   
@@ -283,22 +325,23 @@ def get_portfolio():
 
 
 @app.route("/delete_transaction", methods=["DELETE"])
-@jwt_required()
 def delete_transaction():
+
+    if session.get('user_id') is None:
+        return jsonify({'resdult':'You are logged out'}), 401
 
     id = request.json["id"]
 
     conn = postgreSQL_pool.getconn()
     cur = conn.cursor()
 
-    if delete_validation(id):
+    if not delete_validation(id):
 
         cur.execute(f"DELETE FROM transaction WHERE id = {id} AND user_id = {session['user_id']}")
         conn.commit()
+        return jsonify({'result': 'transaction deleted'})  , 200
 
-        return jsonify({'result': 'transaction deleted'})    
-    else:
-        return jsonify({'error': 'transaction does not exist' })
+    return jsonify({'error': 'transaction does not exist' }), 404
 
 
 app.run(debug=True, port=5000)

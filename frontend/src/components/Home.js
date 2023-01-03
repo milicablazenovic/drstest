@@ -40,6 +40,7 @@ const Home = () => {
             : (
                 <div>
                     <p><b>You don't have any Cryptocurrency in your List!</b></p><br/><br/>
+                    <p>You are not logged in</p><br/>
                     <p>Click here to check our Market and buy Cryptocurrency!</p><br/>
                     <form onSubmit={handleButtonBuy}>
                         <button type="sumbit">Buy</button>
