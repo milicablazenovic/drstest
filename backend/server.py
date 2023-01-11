@@ -23,7 +23,7 @@ app = Flask(__name__)
 
 app.secret_key = "super secret key"
 app.config['JWT_SECRET_KEY'] = 'my_only_secret'
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgres://docker:docker@database/drsdb"
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgres://docker:docker@database:5432/drsdb"
 
 cors = CORS(app)
 bcrypt = Bcrypt(app)

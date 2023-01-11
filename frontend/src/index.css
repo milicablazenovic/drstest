@@ -1,0 +1,242 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
+
+/* base styles */
+* {
+  margin: 0;
+  font-family: "Quicksand";
+  color: #333;
+}
+.navbar {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  max-width: 600px;
+  margin: 0 auto;
+  border-bottom: 1px solid #f2f2f2;
+}
+.navbar h1 {
+  color: #376136;
+  text-align: center;
+}
+.navbar .links {
+  margin-left: auto;
+}
+.navbar a {
+  margin-left: 16px;
+  text-decoration: none;
+  padding: 6px;
+}
+.navbar a:hover {
+  color: #376136;
+}
+.content {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+/* blog previews / list */
+
+/*CRYPTO-PREVIEW*/
+.crypto-preview {
+  padding: 10px 16px;
+  margin: 20px 0;
+  border-bottom: 1px solid #fafafa;
+}
+.crypto-preview:hover {
+  box-shadow: 1px 3px 5px rgba(0,0,0,0.1);
+}
+.crypto-preview h2 {
+  font-size: 20px;
+  color: #376136;
+  margin-bottom: 8px;
+}
+.crypto-preview a{
+  text-decoration: none;
+}
+
+/* blog details page */
+
+/*CRYPTO DETAILS*/
+.crypto-details h2 {
+  font-size: 20px;
+  color: #376136;
+  margin-bottom: 10px;
+}
+.crypto-details div {
+  margin: 20px 0;
+}
+.crypto-details button {
+  background: #376136;
+  color: #fff;
+  border: 0;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* create new blog form */
+
+/*LOGIN*/
+.login {
+  max-width: 400px;
+  margin: 0 auto;
+  text-align: center;
+}
+.login label {
+  text-align: left;
+  display: block;
+}
+.login h2 {
+  font-size: 20px;
+  color: #376136;
+  margin-bottom: 30px;
+}
+.login input, .login textarea, .login select {
+  width: 100%;
+  padding: 6px 10px;
+  margin: 10px 0;
+  border: 1px solid #ddd;
+  box-sizing: border-box;
+  display: block;
+}
+.login button {
+  background: #376136;
+  color: #fff;
+  border: 0;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/*REGISTER*/
+.register {
+  max-width: 400px;
+  margin: 0 auto;
+  text-align: center;
+}
+.register label {
+  text-align: left;
+  display: block;
+}
+.register h2 {
+  font-size: 20px;
+  color: #376136;
+  margin-bottom: 30px;
+}
+.register input, .register textarea, .register select {
+  width: 100%;
+  padding: 6px 10px;
+  margin: 10px 0;
+  border: 1px solid #ddd;
+  box-sizing: border-box;
+  display: block;
+}
+.register button {
+  background: #376136;
+  color: #fff;
+  border: 0;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/*EDIT*/
+.edit {
+  max-width: 400px;
+  margin: 0 auto;
+  text-align: center;
+}
+.edit label {
+  text-align: left;
+  display: block;
+}
+.edit h2 {
+  font-size: 20px;
+  color: #376136;
+  margin-bottom: 30px;
+}
+.edit input, .edit textarea, .edit select {
+  width: 100%;
+  padding: 6px 10px;
+  margin: 10px 0;
+  border: 1px solid #ddd;
+  box-sizing: border-box;
+  display: block;
+}
+.edit button {
+  background: #376136;
+  color: #fff;
+  border: 0;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/*HOME*/
+.home {
+  max-width: 400px;
+  margin: 0 auto;
+  text-align: center;
+}
+.home label {
+  text-align: left;
+  display: block;
+}
+.home h2 {
+  font-size: 20px;
+  color: #376136;
+  margin-bottom: 30px;
+}
+.home input, .home textarea, .home select {
+  width: 100%;
+  padding: 6px 10px;
+  margin: 10px 0;
+  border: 1px solid #ddd;
+  box-sizing: border-box;
+  display: block;
+}
+.home button {
+  background: #376136;
+  color: #fff;
+  border: 0;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.home b{
+  font-size:20px;
+   color:red
+}
+
+/*BUYCRYPTO*/
+.buyCrypto {
+  max-width: 400px;
+  margin: 0 auto;
+  text-align: center;
+}
+.buyCrypto label {
+  text-align: left;
+  display: block;
+}
+.buyCrypto h2 {
+  font-size: 20px;
+  color: #376136;
+  margin-bottom: 30px;
+}
+.buyCrypto input, .buyCrypto textarea, .buyCrypto select {
+  width: 100%;
+  padding: 6px 10px;
+  margin: 10px 0;
+  border: 1px solid #ddd;
+  box-sizing: border-box;
+  display: block;
+}
+.buyCrypto button {
+  background: #376136;
+  color: #fff;
+  border: 0;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+}
