@@ -116,7 +116,7 @@ def new_user():
     cur = conn.cursor()
 
     if not validate_user(email):
-        insert_statement = f"INSERT INTO \"user\" (name, lastname, address, city, country, phone_num, email, password) VALUES ('{name}', '{lastname}', '{address}', '{city}', '{country}', '{phone_num}', '{email}', '{password}') RETURNING *"
+        insert_statement = f"INSERT INTO user (name, lastname, address, city, country, phone_num, email, password) VALUES ('{name}', '{lastname}', '{address}', '{city}', '{country}', '{phone_num}', '{email}', '{password}') RETURNING *"
         cur.execute(insert_statement)
         conn.commit()
 
