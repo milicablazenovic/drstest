@@ -7,13 +7,9 @@ from psycopg2 import pool
 from flask_cors import CORS, cross_origin
 from flask_bcrypt import Bcrypt, check_password_hash
 
-<<<<<<< HEAD
 
 
 from logic import format_db_row_to_transaction, User
-=======
-from logic import format_db_row_to_transaction
->>>>>>> 858eafb300851b2c76e8dd793c473af3a4422adb
 from logic import BOUGHT, SOLD
 
 #coin gecko za live cenu crypto
@@ -23,12 +19,7 @@ app = Flask(__name__)
 
 
 app.secret_key = "super secret key"
-<<<<<<< HEAD
-app.config['JWT_SECRET_KEY'] = 'my_only_secret'
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgres://docker:docker@database:5432/drsdb"
-=======
 app.config['POSTGRESQL_DATABASE_URI'] = "postgres://docker:docker@database:5432/drsdb"
->>>>>>> 858eafb300851b2c76e8dd793c473af3a4422adb
 
 cors = CORS(app, supports_credentials=True)
 bcrypt = Bcrypt(app)
@@ -121,13 +112,8 @@ def new_user():
     cur = conn.cursor()
 
     if not validate_user(email):
-<<<<<<< HEAD
-        insert_statement = f"INSERT INTO user (name, lastname, address, city, country, phone_num, email, password) VALUES ('{name}', '{lastname}', '{address}', '{city}', '{country}', '{phone_num}', '{email}', '{password}') RETURNING *"
-        cur.execute(insert_statement)
-=======
         insert_statement = f"INSERT INTO \"user\" (name, lastname, address, city, country, phone_num, email, password) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING *"
         cur.execute(insert_statement, (name, lastname, address, city, country, phone_num, email, password))
->>>>>>> 858eafb300851b2c76e8dd793c473af3a4422adb
         conn.commit()
         return jsonify({'result': result}) 
 
@@ -200,18 +186,11 @@ def login():
     return result
 
 
-<<<<<<< HEAD
-"""@app.route('/logout')
-def logout():
-    session.pop('user', None)
-    return jsonify({"result": "You are logged out")"""
-=======
 @app.route('/logout', methods=['POST'])
 def logout():
     session.pop("user_id", None)
     return jsonify({'result':'You are logged out'}), 200
-    
->>>>>>> 858eafb300851b2c76e8dd793c473af3a4422adb
+  
 
 @app.route("/add_transaction", methods=["POST"])
 def new_transaction():
