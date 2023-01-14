@@ -6,10 +6,12 @@ from datetime import datetime, timedelta
 from psycopg2 import pool
 from flask_cors import CORS, cross_origin
 from flask_bcrypt import Bcrypt, check_password_hash
+from flask_session import Session
+from config import ApplicationConfig
+from uuid import uuid4
 
-
-
-from logic import format_db_row_to_transaction, User
+from logic import User
+from logic import format_db_row_to_transaction
 from logic import BOUGHT, SOLD
 
 #coin gecko za live cenu crypto
@@ -19,7 +21,8 @@ app = Flask(__name__)
 
 
 app.secret_key = "super secret key"
-app.config['POSTGRESQL_DATABASE_URI'] = "postgres://docker:docker@database:5432/drsdb"
+#app.config['POSTGRESQL_DATABASE_URI'] = "postgres://docker:docker@database:5432/drsdb"
+server_session = Session(app)
 
 cors = CORS(app, supports_credentials=True)
 bcrypt = Bcrypt(app)
@@ -81,10 +84,48 @@ def create_transaction():
 create_transaction()
 create_user()
 
+def get_uuid():
+    return uuid4().hex
+
 @app.route("/hello")
 def health_check():
     return "I am healthy!"
 
+@app.route("/@me")
+def get_current_user():
+    """name = request.json["name"]
+    lastname = request.json["lastname"]
+    address = request.json["address"]
+    city = request.json["city"]
+    country = request.json["country"]
+    phone_num = request.json["phone_num"]
+    email = request.json["email"]
+    password = request.json["password"]
+    hashed_password = bcrypt.generate_password_hash(request.json["password"]).decode('utf-8')"""
+    if session.get('user_id') is None:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    conn = postgreSQL_pool.getconn()
+    cur = conn.cursor()
+
+    userid = session.get('user_id')
+    cur.execute(f"SELECT * FROM \"user\" WHERE user_id = {userid}")
+    # pokupimo sve redove iz baze
+    row = cur.fetchone()  
+    
+    user = User(id=userid, name=row[0], lastname=row[1], address=row[2], city=row[3], country=row[4], phone_num=row[5], email=row[6], password=row[7])
+
+    return jsonify({
+        'id': userid,
+        'name': user.name,
+        'lastname' : user.lastname,
+        'address' : user.address,
+        'city':user.city,
+        'country':user.country,
+        'phone_num':user.phone_num,
+        'email': user.email,
+        'password': user.password
+    })
 
 @app.route("/register", methods=['POST'])
 def new_user():
@@ -115,10 +156,16 @@ def new_user():
         insert_statement = f"INSERT INTO \"user\" (name, lastname, address, city, country, phone_num, email, password) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING *"
         cur.execute(insert_statement, (name, lastname, address, city, country, phone_num, email, password))
         conn.commit()
+        
+        statement = f"SELECT * FROM \"user\" WHERE email = %s"
+        cur.execute(statement, (email,))
+        data = cur.fetchone()
+        session['user_id'] = data[8]
+        
         return jsonify({'result': result}) 
 
         # User vec postoji
-    return jsonify({'error':'User already exists'}), 409
+    return jsonify({'error':'User already exists'}), 401
        
 
 @app.route("/edit_user", methods=['POST'])
