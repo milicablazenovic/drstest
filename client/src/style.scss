@@ -1,0 +1,138 @@
+/* LOGIN & REGISTER */
+.app{
+    display: flex;
+    justify-content: center;
+
+    .container{
+        width: 1440px;
+
+        .link{
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .navbar{
+            .container{
+                padding: 10px 0px;
+                display: flex;
+                justify-content: space-between;
+                .links{
+                    display: flex;
+                    gap: 10px;
+                }
+                
+                h1 {
+                color: #376136;
+                text-align: center;
+              }
+            }
+              
+        }
+
+        .auth{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: rgb(201, 243, 118);
+            height: 100vh;
+
+            h1{
+                font-size: 30px;
+                color: rgb(54, 76, 10);
+                margin-bottom: 10px;
+            }
+            
+            button{
+                padding: 10px;
+                border: none;
+                background-color: rgb(54, 76, 10);
+                cursor: pointer;
+                color: beige;
+            }
+
+            form{
+                display: flex;
+                flex-direction: column;
+                padding: 50px 60px;
+                background-color: beige;
+                width: 200px;
+                gap: 10px;
+
+                input{
+                    padding: 10px;
+                    border: none;
+                    border-bottom: 1px solid rgb(196, 196, 196);
+                }
+
+                button{
+                    padding: 10px;
+                    border: none;
+                    background-color: rgb(54, 76, 10);
+                    cursor: pointer;
+                    color: beige;
+                }
+
+                p{
+                    font-size: 12px;
+                    color: red;
+                    text-align: center;
+                }
+
+                span{
+                    font-size: 12px;
+                    text-align: center;
+                }
+            }
+        }
+
+        .auth-register{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: rgb(201, 243, 118);
+            height: 100vh;
+
+            h1{
+                font-size: 25px;
+                color: rgb(54, 76, 10);
+                margin-bottom: 8px;
+            }
+            
+            form{
+                display: flex;
+                flex-direction: column;
+                padding: 30px 75px;
+                background-color: beige;
+                width: 200px;
+                gap: 5px;
+
+                input{
+                    padding: 10px;
+                    border: none;
+                    border-bottom: 1px solid rgb(196, 196, 196);
+                }
+
+                button{
+                    padding: 10px;
+                    border: none;
+                    background-color: rgb(54, 76, 10);
+                    cursor: pointer;
+                    color: beige;
+                }
+
+                p{
+                    font-size: 12px;
+                    color: red;
+                    text-align: center;
+                }
+
+                span{
+                    font-size: 12px;
+                    text-align: center;
+                }
+            }
+        }
+    }
+}

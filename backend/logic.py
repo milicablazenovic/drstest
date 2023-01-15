@@ -21,6 +21,7 @@ class Transaction:
 
 @dataclass(frozen=True)
 class User():
+    id: str
     name: str
     lastname: str
     address: str

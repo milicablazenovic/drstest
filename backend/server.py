@@ -1,5 +1,7 @@
 import requests
 
+import flask
+
 from flask import Flask, request, jsonify, session
 from collections import defaultdict
 from datetime import datetime, timedelta
@@ -18,14 +20,15 @@ from logic import BOUGHT, SOLD
 LIVE_PRICE_URL = "https://api.coingecko.com/api/v3/simple/price"  
 
 app = Flask(__name__)
-
+app.config.from_object(ApplicationConfig)
 
 app.secret_key = "super secret key"
 #app.config['POSTGRESQL_DATABASE_URI'] = "postgres://docker:docker@database:5432/drsdb"
 server_session = Session(app)
 
-cors = CORS(app, supports_credentials=True)
+CORS(app, supports_credentials=True)
 bcrypt = Bcrypt(app)
+#server_session = Session(app)
 
 symbol_to_coin_map = {
     "BTC": "bitcoin",
@@ -113,9 +116,12 @@ def get_current_user():
     # pokupimo sve redove iz baze
     row = cur.fetchone()  
     
+    # ???
+    #user = User.id=user_id
     user = User(id=userid, name=row[0], lastname=row[1], address=row[2], city=row[3], country=row[4], phone_num=row[5], email=row[6], password=row[7])
 
     return jsonify({
+        #'id': user.row[8],
         'id': userid,
         'name': user.name,
         'lastname' : user.lastname,
@@ -156,17 +162,16 @@ def new_user():
         insert_statement = f"INSERT INTO \"user\" (name, lastname, address, city, country, phone_num, email, password) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING *"
         cur.execute(insert_statement, (name, lastname, address, city, country, phone_num, email, password))
         conn.commit()
-        
-        statement = f"SELECT * FROM \"user\" WHERE email = %s"
-        cur.execute(statement, (email,))
+
+        statement = f"SELECT * FROM \"user\" WHERE email = '{email}'"
+        cur.execute(statement)
         data = cur.fetchone()
         session['user_id'] = data[8]
-        
+
         return jsonify({'result': result}) 
 
         # User vec postoji
     return jsonify({'error':'User already exists'}), 401
-       
 
 @app.route("/edit_user", methods=['POST'])
 def edit_user():
@@ -220,13 +225,15 @@ def login():
     cur.execute(statement, (email,))
     row = cur.fetchone()
 
+    #user = User.email=email
     
     if bcrypt.check_password_hash(row[7], password):
         session['user_id'] = row[8]
+        result = jsonify({'email': email, 
+                        'id': row[8]})
+                    
         """access_token = create_access_token(
             identity={'name': row[0], 'lastname': row[1], 'email': row[6]})"""
-        result = jsonify({'email': email, 
-                          'id': row[8]})
     else:
         result = jsonify({"error": "Unauthorized"}), 401
 
@@ -237,13 +244,13 @@ def login():
 def logout():
     session.pop("user_id", None)
     return jsonify({'result':'You are logged out'}), 200
-  
+    
 
 @app.route("/add_transaction", methods=["POST"])
 def new_transaction():
 
     if session.get('user_id') is None:
-        return jsonify({'resdult':'You are logged out'}), 401
+        return jsonify({'result':'You are logged out'}), 401
 
     symbol = request.json["symbol"]
 
@@ -254,8 +261,10 @@ def new_transaction():
     name = request.json["name"]
     type = request.json["type"]
     amount = request.json["amount"]
-    time_transacted = datetime.fromtimestamp(request.json["time_transacted"])
+    # time_transacted = datetime.fromtimestamp(request.json["time_transacted"])
+    time_transacted = request.json["time_transacted"]
     time_created = datetime.fromtimestamp(request.json["time_created"])
+    #time_created = request.json["time_created"]
     price_purchased_at = float(response[symbol_to_coin_map[symbol]]['usd'])
     no_of_coins = (amount/100) / price_purchased_at
     

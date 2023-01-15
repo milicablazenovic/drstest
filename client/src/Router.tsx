@@ -1,4 +1,4 @@
-import {BrowserRouter, Route, Switch, Link } from "react-router-dom"
+import {BrowserRouter, Switch, Route, Link} from "react-router-dom";
 import EditPage from "./pages/EditPage";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
@@ -8,6 +8,12 @@ import Navbar from "./Navbar";
 //import './style.scss';
 import BuyCryptoPage from "./pages/BuyCryptoPage";
 import './index.css';
+
+// function Layout(){
+//     return (
+//         <Navbar/>
+//     );
+// };
 
 const Router = () => {
     return ( 

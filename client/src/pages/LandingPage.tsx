@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from "react";
 import httpClient from "../httpClient";
-import { User } from "../types";
+import { Transaction, User } from "../types";
 
 const LandingPage: React.FC = () => {
     const [user, setUser] = useState<User | null>(null);

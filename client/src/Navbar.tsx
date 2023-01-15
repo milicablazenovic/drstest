@@ -15,6 +15,7 @@ const Navbar: React.FC = () => {
         (async() => {
             try{
                 const response = await httpClient.get("//127.0.0.1:5000/@me");
+                
                 setUser(response.data);
             }
             catch(error){
