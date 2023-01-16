@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Value } from "sass";
 import httpClient from "../httpClient";
+import { User } from "../types";
 
 const EditPage: React.FC = () => {
     const [name, setName] = useState<string>("");
@@ -11,6 +12,8 @@ const EditPage: React.FC = () => {
     const [phone_num, setPhone] = useState<string>("");
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
+
+    const[userEdited, setUserEdited] = useState<User | null>(null);
 
     const editUser = async () => {
         
@@ -31,6 +34,18 @@ const EditPage: React.FC = () => {
         }
         
     };
+
+    useEffect(() => {
+        (async() => {
+            try{
+                const response = await httpClient.get("//127.0.0.1:5000/@me");
+                setUserEdited(response.data);
+            }
+            catch(error){
+                console.log("Not authenticated");
+            }
+        })();
+    }, []);
     
     return ( 
         <div className="auth">
@@ -38,37 +53,37 @@ const EditPage: React.FC = () => {
             <form>
                 <div>
                     <label>Name: </label>
-                    <input type="text" required value={name} 
+                    <input type="text" required value={name} placeholder={userEdited?.name}
                         onChange={(e) => setName(e.target.value)}></input>
                 </div>
                 <div>
                     <label>Lastname: </label>
-                    <input type="text" required value={lastname}
+                    <input type="text" required value={lastname} placeholder={userEdited?.lastname}
                         onChange={(e) => setLastname(e.target.value)}></input>
                 </div>
                 <div>
                     <label>Address: </label>
-                    <input type="text" required value={address} 
+                    <input type="text" required value={address} placeholder={userEdited?.address}
                         onChange={(e) => setAddress(e.target.value)}></input>
                 </div>
                 <div>
                     <label>City: </label>
-                    <input type="text" required value={city}
+                    <input type="text" required value={city} placeholder={userEdited?.city}
                         onChange={(e) => setCity(e.target.value)}></input>
                 </div>
                 <div>
                     <label>Country: </label>
-                    <input type="text" required value={country} 
+                    <input type="text" required value={country} placeholder={userEdited?.country}
                         onChange={(e) => setCountry(e.target.value)}></input>
                 </div>
                 <div>
                     <label>Phone number: </label>
-                    <input type="text" required value={phone_num}
+                    <input type="text" required value={phone_num} placeholder={userEdited?.phone_num}
                         onChange={(e) => setPhone(e.target.value)}></input>
                 </div>
                 <div>   
                     <label>Email: </label>
-                    <input type="text" required value={email} 
+                    <input type="text" required value={email} placeholder={userEdited?.email}
                     onChange={(e) => setEmail(e.target.value)}></input>
                 </div>
                 <div>

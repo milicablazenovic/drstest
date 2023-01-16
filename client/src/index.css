@@ -38,7 +38,7 @@
 /* blog previews / list */
 
 /*CRYPTO-PREVIEW*/
-.crypto-preview {
+/* .crypto-preview {
   padding: 10px 16px;
   margin: 20px 0;
   border-bottom: 1px solid #fafafa;
@@ -53,12 +53,12 @@
 }
 .crypto-preview a{
   text-decoration: none;
-}
+} */
 
 /* blog details page */
 
 /*CRYPTO DETAILS*/
-.crypto-details h2 {
+/* .crypto-details h2 {
   font-size: 20px;
   color: #376136;
   margin-bottom: 10px;
@@ -73,7 +73,7 @@
   padding: 8px;
   border-radius: 8px;
   cursor: pointer;
-}
+} */
 
 /* create new blog form */
 
