@@ -270,7 +270,30 @@ def new_transaction():
     
     # konektujemo se na bazu podataka
     conn = postgreSQL_pool.getconn()  
-    cur = conn.cursor()
+    cur = conn.cursor()    
+    
+    # DA LI MOZEMO DA PRODAMO COINS-E
+    cur.execute(f"SELECT type, SUM(no_of_coins) AS total_coins FROM transaction WHERE user_id = {session['user_id']} AND symbol = %s", (symbol, ))
+    rows = cur.fetchall()
+    
+    if rows == None:
+        return jsonify({'result':'Invalid coin'}), 400
+    
+    current_coins = 0
+    for row in rows:
+        transaction_type = row[0]
+        transaction_coins = row[1]
+
+        if transaction_type == BOUGHT:
+            current_coins += transaction_coins
+        else:
+            # prodaja
+            current_coins -= transaction_coins
+    
+    
+    if type == 0 and current_coins < no_of_coins:
+         return jsonify({'result':'Not enough coins'}), 400
+
 
     insert_statement = f"INSERT INTO transaction (name, symbol, type, amount, time_transacted, time_created, price_purchased_at, no_of_coins, user_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, {session['user_id']}) RETURNING *"
     cur.execute(insert_statement, (name, symbol, type, amount, time_transacted, time_created, price_purchased_at, no_of_coins))
