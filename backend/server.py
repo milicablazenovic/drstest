@@ -273,7 +273,7 @@ def new_transaction():
     cur = conn.cursor()    
     
     # DA LI MOZEMO DA PRODAMO COINS-E
-    cur.execute(f"SELECT type, SUM(no_of_coins) AS total_coins FROM transaction WHERE user_id = {session['user_id']} AND symbol = %s", (symbol, ))
+    cur.execute(f"SELECT type, SUM(no_of_coins) AS total_coins FROM transaction WHERE user_id = {session['user_id']} AND symbol = %s GROUP BY type", (symbol, ))
     rows = cur.fetchall()
     
     if rows == None:
@@ -291,8 +291,8 @@ def new_transaction():
             current_coins -= transaction_coins
     
     
-    if type == 0 and current_coins < no_of_coins:
-         return jsonify({'result':'Not enough coins'}), 400
+    if type == SOLD and current_coins < no_of_coins:
+         return jsonify({'result':'Not enough coins'}), 401
 
 
     insert_statement = f"INSERT INTO transaction (name, symbol, type, amount, time_transacted, time_created, price_purchased_at, no_of_coins, user_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, {session['user_id']}) RETURNING *"
