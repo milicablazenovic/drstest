@@ -282,7 +282,7 @@ def new_transaction():
     current_coins = 0
     for row in rows:
         transaction_type = row[0]
-        transaction_coins = row[1]
+        transaction_coins = float(row[1])
 
         if transaction_type == BOUGHT:
             current_coins += transaction_coins
@@ -290,8 +290,8 @@ def new_transaction():
             # prodaja
             current_coins -= transaction_coins
     
-    
-    if type == SOLD and current_coins < no_of_coins:
+
+    if int(type) == SOLD and current_coins < no_of_coins:
          return jsonify({'result':'Not enough coins'}), 401
 
 
