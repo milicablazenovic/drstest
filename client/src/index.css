@@ -112,6 +112,15 @@ code {
   color: #333;
 }
 
+.auth .edit_btn button{
+  background: #376136;
+  color: #fff;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin: auto 10px;
+}
+
 .auth input,
 .auth textarea,
 .auth select {

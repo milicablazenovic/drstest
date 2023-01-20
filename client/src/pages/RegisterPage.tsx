@@ -26,12 +26,11 @@ const RegisterPage: React.FC = () => {
         password,
       });
 
+      alert("Successfully registered!");
       window.location.href = "/";
       //history.push("/");
     } catch (error: any) {
-      if (error.response.status === 401) {
-        alert("Invalid credentials");
-      }
+      alert("Invalid credentials");
     }
   };
 
@@ -117,7 +116,7 @@ const RegisterPage: React.FC = () => {
         </button>
         <br />
         <span>
-          Do you have an account?
+          Do you have already an account?
           <br />
           <Link to="/login">Login Here!</Link>
         </span>

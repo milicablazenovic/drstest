@@ -65,7 +65,7 @@ const LandingPage: React.FC = () => {
         {user != null ? (
           <div>
             <h2>
-              Hello <span>{user.name}</span>
+              Hello <span>{user.name}</span>!
               <br />
               Welcome to this Cryptocurrency Exchange
             </h2>

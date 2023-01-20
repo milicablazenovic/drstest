@@ -10,8 +10,7 @@ const BuyCryptoPage: React.FC = () => {
   const [symbol, setSymbol] = useState<string>("");
   const [amount, setAmount] = useState<string | number>("");
   const [transactionDate, setTransactionDate] = React.useState<null | Date>();
-  const [transactionCreated, setTransactionCreated] =
-    React.useState<null | Date>();
+  const [transactionCreated, setTransactionCreated] = React.useState<null | Date>();
   const [purchasedAt, setPurchasedAt] = useState<string | number>(1);
   const [no_of_coins, setNoOfCoins] = useState<string | number>(1);
 
@@ -21,35 +20,30 @@ const BuyCryptoPage: React.FC = () => {
 
     try {
       console.log("request", {
-        name,
-        symbol,
-        amount: Number(amount) * 100,
-        type,
-        time_transacted: transactionDate!.getTime() / 1000,
-        time_created: Date.now() / 1000,
-        price_purchased_at: purchasedAt,
+        name, symbol, amount: Number(amount) * 100,
+        type, time_transacted: transactionDate!.getTime() / 1000,
+        time_created: Date.now() / 1000, price_purchased_at: purchasedAt,
         no_of_coins: no_of_coins,
       });
 
       const response = await httpClient.post(
         "//127.0.0.1:5000/add_transaction",
         {
-          name,
-          symbol,
-          amount: Number(amount) * 100,
-          type,
-          time_transacted: transactionDate!.getTime() / 1000,
-          time_created: Date.now() / 1000,
-          price_purchased_at: purchasedAt,
+          name, symbol, amount: Number(amount) * 100,
+          type, time_transacted: transactionDate!.getTime() / 1000,
+          time_created: Date.now() / 1000, price_purchased_at: purchasedAt,
           no_of_coins: no_of_coins,
         }
       );
 
+      alert("Successfully purchased!");
       window.location.href = "/";
     } catch (error: any) {
+      alert("Please check if you entered everything correctly.");
       if (error.response.status === 401) {
         alert("Unauthorized!");
       }
+      
     }
   };
 
@@ -58,19 +52,14 @@ const BuyCryptoPage: React.FC = () => {
       <form>
         <h2>Trade with your Cryptos</h2>
         <input
-          type="text"
-          required
-          value={name}
-          placeholder="Enter the Cryptocurrency's name: "
-          onChange={(e) => setName(e.target.value)}
-        ></input>
-        <br />
+          type="text" required value={name} placeholder="Enter the Cryptocurrency's name: "
+          onChange={(e) => setName(e.target.value)}></input> <br />
         <input
           type="text"
           required
           value={symbol}
           placeholder="Enter the Crypto symbol: "
-          onChange={(e) => setSymbol(e.target.value)}
+          onChange={(e) => setSymbol(e.target.value.toLocaleUpperCase())}
         ></input>
         <br />
         <input
@@ -92,7 +81,7 @@ const BuyCryptoPage: React.FC = () => {
         <ReactDatePicker
           dateFormat="dd/MM/yyyy"
           required
-          selected={transactionDate}
+          selected={transactionDate} placeholderText="Select the Date: "
           onChange={(e) => setTransactionDate(e)}
         ></ReactDatePicker>
         <br />

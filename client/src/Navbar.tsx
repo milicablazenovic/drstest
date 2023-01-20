@@ -7,6 +7,7 @@ const Navbar: React.FC = () => {
     const [user, setUser] = useState<User | null>(null);
 
     const logoutUser = async () => {
+        //confirm("Do you really want to log out?", );
         const response = await httpClient.post("//127.0.0.1:5000/logout");
         window.location.href = "/";
     }

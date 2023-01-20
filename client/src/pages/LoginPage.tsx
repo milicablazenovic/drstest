@@ -20,12 +20,14 @@ const LoginPage: React.FC = () => {
 
       console.log("response", response);
 
+      alert("Successfully logged in!");
       window.location.href = "/";
       //history.push("/");
     } catch (error: any) {
-      if (error.response.status === 401) {
-        alert("Invalid credentials");
-      }
+      alert("Please check if you entered the right email and password!");
+      // if (error.response.status === 401) {
+      //   alert("Unauthorized!");
+      // }
     }
 
     //console.log(response.data);
