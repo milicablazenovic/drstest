@@ -261,8 +261,8 @@ def new_transaction():
     name = request.json["name"]
     type = request.json["type"]
     amount = request.json["amount"]
-    # time_transacted = datetime.fromtimestamp(request.json["time_transacted"])
-    time_transacted = request.json["time_transacted"]
+    time_transacted = datetime.fromtimestamp(request.json["time_transacted"])
+    #time_transacted = request.json["time_transacted"]
     time_created = datetime.fromtimestamp(request.json["time_created"])
     #time_created = request.json["time_created"]
     price_purchased_at = float(response[symbol_to_coin_map[symbol]]['usd'])

@@ -2,6 +2,25 @@ import { useState, useEffect } from "react";
 import httpClient from "../httpClient";
 
 export default function AllTransactions({ transactions, removeFunc }) {
+  // Create a state variable to store the filtered transactions
+  const [transactionWithFilters, setTransactionWithFilters] =
+    useState(transactions);
+
+  // Listen to changes in transactions and update transactionWithFilters accordingly
+  useEffect(() => {
+    setTransactionWithFilters(transactions);
+  }, [transactions]);
+
+  // Function to handle filter changes
+  const applyFilter = (symbol) => {
+    // Filter the transactions array based on the symbol provided
+    setTransactionWithFilters(
+      transactions.filter((value) => value["symbol"].includes(symbol))
+    );
+    console.log("first", transactionWithFilters);
+  };
+
+  // Function to delete a transaction from the server
   const deleteTransaction = async (id) => {
     try {
       const response = await httpClient.delete(
@@ -19,7 +38,24 @@ export default function AllTransactions({ transactions, removeFunc }) {
 
   return (
     <div>
-      <h1>All transactions</h1>
+      <div className="row">
+        <h1>All transactions</h1>
+        <select
+          name="filter"
+          id="filter"
+          onChange={(e) => applyFilter(e.target.value)}
+        >
+          <option value="">All</option>
+          <option value="BTC">Bitcoin (BTC)</option>
+          <option value="LINK">Chainlink (LINK)</option>
+          <option value="ETH">Ethereum (ETH)</option>
+          <option value="ADA">Cardano (ADA)</option>
+          <option value="MANA">Decentraland (MANA)</option>
+          <option value="DOGE">Dogecoin (DOGE)</option>
+          <option value="LTC">Litecoin (LTC)</option>
+          <option value="DOT">Polkadot (DOT)</option>
+        </select>
+      </div>
       <table>
         <thead>
           <tr>
@@ -35,7 +71,7 @@ export default function AllTransactions({ transactions, removeFunc }) {
           </tr>
         </thead>
         <tbody>
-          {transactions.map((item) => {
+          {transactionWithFilters.map((item) => {
             return (
               <tr key={(Math.random() + 1).toString(36).substring(7)}>
                 <td>{item["id"]}</td>

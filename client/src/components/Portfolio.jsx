@@ -4,10 +4,13 @@ export default function Portfolio({ portfolio, transactions }) {
   let totalProf = 0.0;
   let totalPortoflioValue = 0.0;
 
+  // Helper function to calculate profit of a specific symbol
   const getProfit = (transactions, symbol) => {
     let totalProf = 0.0;
 
+    // Iterate through all transactions
     transactions.forEach((element) => {
+      // If the transaction is a buy transaction
       if (element["type"] == 1) {
         if (element["symbol"] == symbol)
           totalProf += element["no_of_coins"] * element["price_purchased_at"];
@@ -36,10 +39,12 @@ export default function Portfolio({ portfolio, transactions }) {
           </thead>
           <tbody>
             {portfolio.map((item) => {
+              // Calculate the profit of the current item
               item["profit"] =
                 item["coins"] * item["live_price"] -
                 getProfit(transactions, item["symbol"]);
 
+              // Calculate total portfolio value and total profit
               totalPortoflioValue += item["coins"] * item["live_price"];
               totalProf += item["profit"];
 
