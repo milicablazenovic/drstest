@@ -1,4 +1,18 @@
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
+/* body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+} */
+
+@import url("https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap");
 
 /* base styles */
 * {
@@ -10,7 +24,7 @@
   padding: 20px;
   display: flex;
   align-items: center;
-  max-width: 600px;
+  max-width: 1000px;
   margin: 0 auto;
   border-bottom: 1px solid #f2f2f2;
 }
@@ -27,6 +41,7 @@
   padding: 6px;
 }
 .navbar a:hover {
+  text-decoration: underline;
   color: #376136;
 }
 .content {
@@ -38,27 +53,27 @@
 /* blog previews / list */
 
 /*CRYPTO-PREVIEW*/
-/* .crypto-preview {
+.crypto-preview {
   padding: 10px 16px;
   margin: 20px 0;
   border-bottom: 1px solid #fafafa;
 }
 .crypto-preview:hover {
-  box-shadow: 1px 3px 5px rgba(0,0,0,0.1);
+  box-shadow: 1px 3px 5px rgba(0, 0, 0, 0.1);
 }
 .crypto-preview h2 {
   font-size: 20px;
   color: #376136;
   margin-bottom: 8px;
 }
-.crypto-preview a{
+.crypto-preview a {
   text-decoration: none;
-} */
+}
 
 /* blog details page */
 
 /*CRYPTO DETAILS*/
-/* .crypto-details h2 {
+.crypto-details h2 {
   font-size: 20px;
   color: #376136;
   margin-bottom: 10px;
@@ -73,26 +88,33 @@
   padding: 8px;
   border-radius: 8px;
   cursor: pointer;
-} */
+}
 
 /* create new blog form */
 
 /*LOGIN*/
 .auth {
-  max-width: 400px;
+  max-width: 600px;
   margin: 0 auto;
   text-align: center;
+  margin-top: 20px;
 }
 .auth label {
   text-align: left;
   display: block;
 }
 .auth h2 {
-  font-size: 20px;
+  font-size: 24px;
   color: #376136;
   margin-bottom: 30px;
 }
-.auth input, .auth textarea, .auth select {
+.auth span {
+  color: #333;
+}
+
+.auth input,
+.auth textarea,
+.auth select {
   width: 100%;
   padding: 6px 10px;
   margin: 10px 0;
@@ -109,134 +131,77 @@
   cursor: pointer;
 }
 
-/*REGISTER*/
-/* .register {
-  max-width: 400px;
-  margin: 0 auto;
-  text-align: center;
-}
-.register label {
-  text-align: left;
-  display: block;
-}
-.register h2 {
-  font-size: 20px;
-  color: #376136;
-  margin-bottom: 30px;
-}
-.register input, .register textarea, .register select {
-  width: 100%;
-  padding: 6px 10px;
-  margin: 10px 0;
-  border: 1px solid #ddd;
-  box-sizing: border-box;
-  display: block;
-}
-.register button {
-  background: #376136;
-  color: #fff;
-  border: 0;
-  padding: 8px;
-  border-radius: 8px;
-  cursor: pointer;
-} */
+/* Landing page transaction and portfolio details */
 
-/*EDIT*/
-/* .edit {
-  max-width: 400px;
-  margin: 0 auto;
-  text-align: center;
-}
-.edit label {
-  text-align: left;
-  display: block;
-}
-.edit h2 {
-  font-size: 20px;
-  color: #376136;
-  margin-bottom: 30px;
-}
-.edit input, .edit textarea, .edit select {
+table {
+  border-collapse: collapse;
   width: 100%;
-  padding: 6px 10px;
-  margin: 10px 0;
-  border: 1px solid #ddd;
-  box-sizing: border-box;
-  display: block;
-}
-.edit button {
-  background: #376136;
-  color: #fff;
-  border: 0;
-  padding: 8px;
-  border-radius: 8px;
-  cursor: pointer;
-} */
-
-/*HOME*/
-/* .home {
-  max-width: 400px;
-  margin: 0 auto;
-  text-align: center;
-}
-.home label {
-  text-align: left;
-  display: block;
-}
-.home h2 {
-  font-size: 20px;
-  color: #376136;
-  margin-bottom: 30px;
-}
-.home input, .home textarea, .home select {
-  width: 100%;
-  padding: 6px 10px;
-  margin: 10px 0;
-  border: 1px solid #ddd;
-  box-sizing: border-box;
-  display: block;
-}
-.home button {
-  background: #376136;
-  color: #fff;
-  border: 0;
-  padding: 8px;
-  border-radius: 8px;
-  cursor: pointer;
-} */
-.auth b{
-  font-size:20px;
-   color:red
+  margin-top: 10px;
 }
 
-/*BUYCRYPTO*/
-/* .buyCrypto {
-  max-width: 400px;
+td,
+th {
+  border: 1px solid #007a04b4;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #007a04b4;
+}
+
+.container {
+  max-width: 1000px;
   margin: 0 auto;
   text-align: center;
-}
-.buyCrypto label {
   text-align: left;
-  display: block;
 }
-.buyCrypto h2 {
-  font-size: 20px;
+
+td.gain {
+  background-color: #376136;
+  color: white;
+}
+td.loss {
+  background-color: #b74848;
+  color: white;
+}
+
+span.gain {
   color: #376136;
-  margin-bottom: 30px;
 }
-.buyCrypto input, .buyCrypto textarea, .buyCrypto select {
-  width: 100%;
-  padding: 6px 10px;
-  margin: 10px 0;
-  border: 1px solid #ddd;
-  box-sizing: border-box;
-  display: block;
+span.loss {
+  color: #b74848;
 }
-.buyCrypto button {
-  background: #376136;
-  color: #fff;
-  border: 0;
-  padding: 8px;
-  border-radius: 8px;
+
+.portfolio {
+  margin-top: 20px;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.portfolioHeader {
+  margin-top: 10px;
+  color: rgb(81, 81, 81);
+  font-size: 18px;
+}
+
+.portfolioHeader span {
+  font-size: 24px;
+}
+
+.deleteBtn {
+  background-color: #b74848;
+  color: white;
+  padding: 7px;
+  border: none;
+  border-radius: 7px;
   cursor: pointer;
-} */
+}
+
+.deleteBtn:hover {
+  background-color: #9f3030;
+}
