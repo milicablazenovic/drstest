@@ -5,25 +5,35 @@ import httpClient from "../httpClient";
 import { User } from "../types";
 
 const LandingPage: React.FC = () => {
+  // State for user data
   const [user, setUser] = useState<User | null>(null);
+  // State for transaction data
   const [transactions, setTransactions] = useState([]);
+  // State for portfolio data
   const [portfolio, setPortfolio] = useState([]);
+  // State for flag to determine whether portfolio data should be updated
   const [shouldUpdatePortfolio, setShouldUpdatePortfolio] = useState(false);
 
+  // Function for removing a transaction from the transaction list
   const removeFromList = (id: number) => {
+    // Confirm with user before deleting
     let shouldDelete = window.confirm(
       "Are you sure you want to delete transaction " + id + "?"
     );
-    shouldDelete &&
+    if (shouldDelete) {
+      // Remove transaction from state
       setTransactions(
         transactions.filter(function (value, index, arr) {
           console.log("value", value);
           return value["id"] != id;
         })
       );
-    setShouldUpdatePortfolio(!shouldUpdatePortfolio);
+      // Update the portfolio data
+      setShouldUpdatePortfolio(!shouldUpdatePortfolio);
+    }
   };
 
+  // Fetch user and transaction data on initial render
   useEffect(() => {
     (async () => {
       try {
@@ -46,6 +56,7 @@ const LandingPage: React.FC = () => {
     })();
   }, []);
 
+  // Fetch updated portfolio data when flag is set
   useEffect(() => {
     (async () => {
       try {
@@ -79,10 +90,12 @@ const LandingPage: React.FC = () => {
       {user && (
         <div className="container">
           <div className="">
+            {/* Pass transactions and remove function to AllTransactions component */}
             <AllTransactions
               transactions={transactions}
               removeFunc={removeFromList}
             />
+            {/* Pass portfolio and transactions data to Portfolio component */}
             <Portfolio portfolio={portfolio} transactions={transactions} />
           </div>
         </div>
