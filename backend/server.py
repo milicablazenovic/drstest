@@ -1,7 +1,7 @@
 import requests
-
+import os
 import flask
-
+import psycopg2
 from flask import Flask, request, jsonify, session
 from collections import defaultdict
 from datetime import datetime, timedelta
@@ -24,6 +24,7 @@ app.config.from_object(ApplicationConfig)
 
 app.secret_key = "super secret key"
 #app.config['POSTGRESQL_DATABASE_URI'] = "postgres://docker:docker@database:5432/drsdb"
+#app.config['POSTGRESQL_DATABASE_URI'] = "postgresql+psycopg2://postgres:docker@database/drsdb"
 server_session = Session(app)
 
 CORS(app, supports_credentials=True)
@@ -49,7 +50,7 @@ postgreSQL_pool = pool.SimpleConnectionPool(
     database="drsdb",
     user="docker",
     password="docker",
-    host="127.0.0.1"
+    host="database"
 )
 
 def close_db_connections(cur, conn):
@@ -443,4 +444,4 @@ def delete_transaction():
     return jsonify({'error': 'transaction does not exist' }), 404
 
 
-app.run(debug=True, port=5000)
+app.run(debug=True, host='0.0.0.0')

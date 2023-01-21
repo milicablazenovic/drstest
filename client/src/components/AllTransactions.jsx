@@ -24,7 +24,7 @@ export default function AllTransactions({ transactions, removeFunc }) {
   const deleteTransaction = async (id) => {
     try {
       const response = await httpClient.delete(
-        "//127.0.0.1:5000/delete_transaction",
+        "//drsapi:5000/delete_transaction",
         {
           data: {
             id: id,

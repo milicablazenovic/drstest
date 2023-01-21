@@ -27,7 +27,7 @@ const BuyCryptoPage: React.FC = () => {
       });
 
       const response = await httpClient.post(
-        "//127.0.0.1:5000/add_transaction",
+        "//drsapi:5000/add_transaction",
         {
           name, symbol, amount: Number(amount) * 100,
           type, time_transacted: transactionDate!.getTime() / 1000,

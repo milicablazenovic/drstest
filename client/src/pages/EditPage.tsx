@@ -18,7 +18,7 @@ const EditPage: React.FC = () => {
     const editUser = async () => {
         
         try{
-            const response = await httpClient.post("//127.0.0.1:5000/edit_user", {
+            const response = await httpClient.post("//drsapi:5000/edit_user", {
                 name, lastname,
                 address, city,
                 country, phone_num,
@@ -40,7 +40,7 @@ const EditPage: React.FC = () => {
     useEffect(() => {
         (async() => {
             try{
-                const response = await httpClient.get("//127.0.0.1:5000/@me");
+                const response = await httpClient.get("//drsapi:5000/@me");
                 setUserEdited(response.data);
             }
             catch(error){

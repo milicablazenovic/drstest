@@ -38,16 +38,16 @@ const LandingPage: React.FC = () => {
     (async () => {
       try {
         if (!user) {
-          const response = await httpClient.get("//127.0.0.1:5000/@me");
+          const response = await httpClient.get("//drsapi:5000/@me");
           setUser(response.data);
         }
         const responseTransactions = await httpClient.get(
-          "//127.0.0.1:5000/get_all_transactions"
+          "//drsapi:5000/get_all_transactions"
         );
         setTransactions(responseTransactions.data);
 
         const responsePortfolio = await httpClient.get(
-          "//127.0.0.1:5000/get_portfolio"
+          "//drsapi:5000/get_portfolio"
         );
         setPortfolio(responsePortfolio.data);
       } catch (error) {
@@ -61,7 +61,7 @@ const LandingPage: React.FC = () => {
     (async () => {
       try {
         const responsePortfolio = await httpClient.get(
-          "//127.0.0.1:5000/get_portfolio"
+          "//drsapi:5000/get_portfolio"
         );
         setPortfolio(responsePortfolio.data);
       } catch (error) {

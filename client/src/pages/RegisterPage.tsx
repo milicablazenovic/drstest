@@ -15,7 +15,7 @@ const RegisterPage: React.FC = () => {
   const registerUser = async () => {
     try {
       console.log("radi");
-      const response = await httpClient.post("//127.0.0.1:5000/register", {
+      const response = await httpClient.post("//drsapi:5000/register", {
         name,
         lastname,
         address,
