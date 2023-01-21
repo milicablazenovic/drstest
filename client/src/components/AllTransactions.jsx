@@ -47,6 +47,7 @@ export default function AllTransactions({ transactions, removeFunc }) {
         >
           <option value="">All</option>
           <option value="BTC">Bitcoin (BTC)</option>
+          <option value="SOL">Solana (SOL)</option>
           <option value="LINK">Chainlink (LINK)</option>
           <option value="ETH">Ethereum (ETH)</option>
           <option value="ADA">Cardano (ADA)</option>

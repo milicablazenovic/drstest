@@ -52,6 +52,10 @@ postgreSQL_pool = pool.SimpleConnectionPool(
     host="127.0.0.1"
 )
 
+def close_db_connections(cur, conn):
+    cur.close()
+    conn.close()
+
 app.config['postgreSQL_pool'] = postgreSQL_pool
 
 def validate_user(email):
@@ -61,6 +65,7 @@ def validate_user(email):
     statement = f"SELECT * FROM \"user\" WHERE email = '{email}'"
     cur.execute(statement)
     data = cur.fetchone()
+    close_db_connections(cur, conn)
     return data
 
 def delete_validation(id):
@@ -70,6 +75,7 @@ def delete_validation(id):
     statement = f"SELECT * FROM transaction WHERE id = {id} AND user_id = {session['user_id']} "
     cur.execute(statement)
     data = cur.fetchone()
+    close_db_connections(cur, conn)
     return data
 
 def create_user():
@@ -77,12 +83,14 @@ def create_user():
     cur = conn.cursor()
     cur.execute("CREATE TABLE IF NOT EXISTS \"user\" (name VARCHAR (20) NOT NULL, lastname VARCHAR (20) NOT NULL, address VARCHAR (30) NOT NULL, city VARCHAR (20) NOT NULL, country VARCHAR (20) NOT NULL, phone_num VARCHAR (10) NOT NULL, email VARCHAR (20) NOT NULL, password VARCHAR (500) NOT NULL, user_id serial PRIMARY KEY)")
     conn.commit()
+    close_db_connections(cur, conn)
 
 def create_transaction():
     conn = postgreSQL_pool.getconn()
     cur = conn.cursor()
     cur.execute("CREATE TABLE IF NOT EXISTS transaction (id serial PRIMARY KEY, name VARCHAR (12) NOT NULL, symbol VARCHAR (5) NOT NULL, type SMALLINT NOT NULL, amount INT NOT NULL, time_transacted TIMESTAMP NOT NULL, time_created TIMESTAMP NOT NULL, price_purchased_at NUMERIC NOT NULL, no_of_coins NUMERIC NULL, user_id INT NOT NULL)")
     conn.commit()
+    close_db_connections(cur, conn)
 
 create_transaction()
 create_user()
@@ -119,6 +127,8 @@ def get_current_user():
     # ???
     #user = User.id=user_id
     user = User(id=userid, name=row[0], lastname=row[1], address=row[2], city=row[3], country=row[4], phone_num=row[5], email=row[6], password=row[7])
+
+    close_db_connections(cur, conn)
 
     return jsonify({
         #'id': user.row[8],
@@ -166,11 +176,13 @@ def new_user():
         statement = f"SELECT * FROM \"user\" WHERE email = '{email}'"
         cur.execute(statement)
         data = cur.fetchone()
+        close_db_connections(cur, conn)
         session['user_id'] = data[8]
 
         return jsonify({'result': result}) 
 
         # User vec postoji
+    close_db_connections(cur, conn)
     return jsonify({'error':'User already exists'}), 401
 
 @app.route("/edit_user", methods=['POST'])
@@ -205,6 +217,7 @@ def edit_user():
     insert_statement = f"UPDATE \"user\" SET name = %s, lastname = %s, address = %s, city = %s, country = %s, phone_num = %s, email = %s, password = %s WHERE user_id = {session['user_id']}"
     cur.execute(insert_statement, (name, lastname, address, city, country, phone_num, email, password))
     conn.commit()
+    close_db_connections(cur, conn)
     return jsonify(result)
 
 
@@ -224,6 +237,7 @@ def login():
     statement = f"SELECT * FROM \"user\" WHERE email = %s"
     cur.execute(statement, (email,))
     row = cur.fetchone()
+    close_db_connections(cur, conn)
 
     #user = User.email=email
     
@@ -273,10 +287,11 @@ def new_transaction():
     cur = conn.cursor()    
     
     # DA LI MOZEMO DA PRODAMO COINS-E
-    cur.execute(f"SELECT type, SUM(no_of_coins) AS total_coins FROM transaction WHERE user_id = {session['user_id']} AND symbol = %s GROUP BY type", (symbol, ))
+    cur.execute(f"SELECT type, no_of_coins FROM transaction WHERE user_id = {session['user_id']} AND symbol = %s GROUP BY type, no_of_coins", (symbol, ))
     rows = cur.fetchall()
     
     if rows == None:
+        close_db_connections(cur, conn)
         return jsonify({'result':'Invalid coin'}), 400
     
     current_coins = 0
@@ -292,12 +307,13 @@ def new_transaction():
     
 
     if int(type) == SOLD and current_coins < no_of_coins:
-         return jsonify({'result':'Not enough coins'}), 401
-
+        close_db_connections(cur, conn)
+        return jsonify({'result':'Not enough coins'}), 401
 
     insert_statement = f"INSERT INTO transaction (name, symbol, type, amount, time_transacted, time_created, price_purchased_at, no_of_coins, user_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, {session['user_id']}) RETURNING *"
     cur.execute(insert_statement, (name, symbol, type, amount, time_transacted, time_created, price_purchased_at, no_of_coins))
     conn.commit()
+    close_db_connections(cur, conn)
 
     return jsonify(request.json)
 
@@ -314,7 +330,8 @@ def get_transactions():
 
     cur.execute(f"SELECT * FROM transaction WHERE user_id = %s", (user_id,))
     # pokupimo sve redove iz baze
-    rows = cur.fetchall()  
+    rows = cur.fetchall()
+    close_db_connections(cur, conn)
 
     return jsonify(
         [
@@ -349,7 +366,7 @@ def get_portfolio():
     # i grupisemo po tome da li je prodaja ili kupovina
     cur.execute(f"SELECT symbol, type, SUM(amount)/100 AS total_amount, SUM(no_of_coins) AS total_coins FROM transaction WHERE user_id = {session['user_id']} GROUP BY symbol, type")
     rows = cur.fetchall()
-
+    close_db_connections(cur, conn)
 
     for row in rows:
         coin = row[0]
@@ -416,12 +433,13 @@ def delete_transaction():
     conn = postgreSQL_pool.getconn()
     cur = conn.cursor()
 
-    if not delete_validation(id):
+    if delete_validation(id):
 
         cur.execute(f"DELETE FROM transaction WHERE id = %s AND user_id = {session['user_id']}", (id,))
         conn.commit()
+        close_db_connections(cur, conn)
         return jsonify({'result': 'transaction deleted'})  , 200
-
+    close_db_connections(cur, conn)
     return jsonify({'error': 'transaction does not exist' }), 404
 
 
